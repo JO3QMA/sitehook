@@ -5,7 +5,13 @@ require 'uri'
 
 # Sitemap Class
 class Sitemap
-  def self.fetch(uri)
+  attr_reader :response
+
+  def initialize(uri)
+    @response = fetch(uri)
+  end
+
+  def fetch(uri)
     url = URI.parse(uri)
     https = Net::HTTP.new(url.host, url.port)
     https.use_ssl = true
