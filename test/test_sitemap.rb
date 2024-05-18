@@ -16,15 +16,16 @@ class SitemapTest < Minitest::Test
         .to_return(status: 200, body: '', headers: {})
       stub_request(:get, @invalid_url)
         .to_return(status: 404, body: '', headers: {})
-      @sitemap = Sitemap.new
     end
 
     def test_fetch_sitemap_response_code200
-      assert_equal '200', @sitemap.fetch(@valid_url).code
+      sitemap = Sitemap.new(@valid_url)
+      assert_equal '200', sitemap.response.code
     end
 
     def test_fetch_sitemap_response_code404
-      assert_equal '404', @sitemap.fetch(@invalid_url).code
+      sitemap = Sitemap.new(@invalid_url)
+      assert_equal '404', sitemap.response.code
     end
   end
 end
