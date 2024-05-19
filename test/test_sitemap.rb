@@ -40,8 +40,24 @@ class SitemapTest < Minitest::Test
       @sitemap = Sitemap.new('https://www.example.com/sitemap.xml')
     end
 
-    def test_parse_sitemap_first_loc
-      assert_equal 'https://www.example.com/', @sitemap.urls.first[:loc]
+    describe 'sitemap urls size test' do
+      def test_parse_sitemap_urls_size
+        assert_equal 3, @sitemap.urls.size
+      end
+    end
+
+    describe 'sitemap loc test' do
+      def test_parse_sitemap_first_loc
+        assert_equal 'https://www.example.com/', @sitemap.urls.first[:loc]
+      end
+
+      def test_parse_sitemap_2nd_loc
+        assert_equal 'https://www.example.com/url01', @sitemap.urls[1][:loc]
+      end
+
+      def test_parse_sitemap_last_loc
+        assert_equal 'https://www.example.com/directory/url02', @sitemap.urls.last[:loc]
+      end
     end
   end
 end
