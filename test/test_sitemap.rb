@@ -38,7 +38,6 @@ class SitemapTest < Minitest::Test
           headers: {}
         )
       @sitemap = Sitemap.new('https://www.example.com/sitemap.xml')
-      @sitemap.parse
     end
 
     def test_parse_sitemap_first_loc
