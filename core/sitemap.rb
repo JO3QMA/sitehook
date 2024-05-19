@@ -3,6 +3,7 @@
 require 'net/https'
 require 'uri'
 require 'nokogiri'
+require 'time'
 
 # Sitemap Class
 class Sitemap
@@ -34,7 +35,11 @@ class Sitemap
         next if child_node.node_type == 8 # コメント
         next if child_node.node_type == 14 # タグ間の空白文字
 
-        url[child_node.name.to_sym] = child_node.text
+        url[child_node.name.to_sym] = if child_node.name == 'lastmod'
+                                        Time.parse(child_node.text)
+                                      else
+                                        child_node.text
+                                      end
       end
       url
     end
