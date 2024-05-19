@@ -28,4 +28,21 @@ class SitemapTest < Minitest::Test
       assert_equal '404', sitemap.response.code
     end
   end
+
+  describe 'Parse sitemap.xml' do
+    def setup
+      stub_request(:get, 'https://www.example.com/sitemap.xml')
+        .to_return(
+          status: 200,
+          body: File.new('./test/sitemap.xml'),
+          headers: {}
+        )
+      @sitemap = Sitemap.new('https://www.example.com/sitemap.xml')
+      @sitemap.parse
+    end
+
+    def test_parse_sitemap_first_loc
+      assert_equal 'https://www.example.com/', @sitemap.urls.first[:loc]
+    end
+  end
 end
