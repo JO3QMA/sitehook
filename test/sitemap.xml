@@ -11,4 +11,12 @@
     <loc>https://www.example.com/directory/url02</loc>
     <lastmod>2024-03-21T00:00:00+09:00</lastmod>
   </url>
+  <url>
+    <loc>https://www.example.com/directory/url03</loc>
+    <lastmod>2024-03-21T01:23:45Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.example.com/directory/url04</loc>
+    <lastmod>2024-03-22</lastmod>
+  </url>
 </urlset>

@@ -31,6 +31,7 @@ class SitemapTest < Minitest::Test
 
   describe 'Parse sitemap.xml' do
     def setup
+      require 'time'
       stub_request(:get, 'https://www.example.com/sitemap.xml')
         .to_return(
           status: 200,
@@ -42,7 +43,7 @@ class SitemapTest < Minitest::Test
 
     describe 'sitemap urls size test' do
       def test_parse_sitemap_urls_size
-        assert_equal 3, @sitemap.urls.size
+        assert_equal 5, @sitemap.urls.size
       end
     end
 
@@ -55,8 +56,30 @@ class SitemapTest < Minitest::Test
         assert_equal 'https://www.example.com/url01', @sitemap.urls[1][:loc]
       end
 
-      def test_parse_sitemap_last_loc
-        assert_equal 'https://www.example.com/directory/url02', @sitemap.urls.last[:loc]
+      def test_parse_sitemap_3rd_loc
+        assert_equal 'https://www.example.com/directory/url02', @sitemap.urls[2][:loc]
+      end
+    end
+
+    describe 'sitemap lastmod test' do
+      def test_parse_sitemap_first_lastmod
+        assert_nil @sitemap.urls.first[:lastmod]
+      end
+
+      def test_parse_sitemap_2nd_lastmod
+        assert_equal Time.parse('2024-02-01T00:00:00+09:00'), @sitemap.urls[1][:lastmod]
+      end
+
+      def test_parse_sitemap_3rd_lastmod
+        assert_equal Time.parse('2024-03-21T00:00:00+09:00'), @sitemap.urls[2][:lastmod]
+      end
+
+      def test_parse_sitemap_4th_lastmod
+        assert_equal Time.parse('2024-03-21T01:23:45Z'), @sitemap.urls[3][:lastmod]
+      end
+
+      def test_parse_sitemap_5th_lastmod
+        assert_equal Time.parse('2024-03-22'), @sitemap.urls[4][:lastmod]
       end
     end
   end
