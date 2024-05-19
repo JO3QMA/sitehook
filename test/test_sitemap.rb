@@ -48,7 +48,7 @@ class SitemapTest < Minitest::Test
     end
 
     describe 'sitemap loc test' do
-      def test_parse_sitemap_first_loc
+      def test_parse_sitemap_1st_loc
         assert_equal 'https://www.example.com/', @sitemap.urls.first[:loc]
       end
 
@@ -62,7 +62,7 @@ class SitemapTest < Minitest::Test
     end
 
     describe 'sitemap lastmod test' do
-      def test_parse_sitemap_first_lastmod
+      def test_parse_sitemap_1st_lastmod
         assert_nil @sitemap.urls.first[:lastmod]
       end
 
