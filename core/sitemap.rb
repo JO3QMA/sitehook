@@ -10,15 +10,25 @@ class Sitemap
   attr_reader :response
 
   def initialize(uri)
-    @response = fetch(uri)
+    @uri = URI.parse(uri)
+    @response = discriminant(@uri)
     @namespace = {
       "ns": 'http://www.sitemaps.org/schemas/sitemap/0.9'
     }
     @body = Nokogiri::XML(@response.body)
   end
 
-  def fetch(uri)
-    url = URI.parse(uri)
+  def discriminant(uri)
+    if uri.scheme == 'https'
+      fetch(uri)
+    elsif uri.scheme.nil?
+      load(uri)
+    else
+      Exception.new('想定外')
+    end
+  end
+
+  def fetch(url)
     https = Net::HTTP.new(url.host, url.port)
     https.use_ssl = true
     https.verify_mode = OpenSSL::SSL::VERIFY_PEER
