@@ -32,6 +32,7 @@ class SitemapTest < Minitest::Test
   describe 'Parse sitemap.xml' do
     def setup
       require 'time'
+      require 'uri'
       stub_request(:get, 'https://www.example.com/sitemap.xml')
         .to_return(
           status: 200,
@@ -49,15 +50,15 @@ class SitemapTest < Minitest::Test
 
     describe 'sitemap loc test' do
       def test_parse_sitemap_1st_loc
-        assert_equal 'https://www.example.com/', @sitemap.urls.first[:loc]
+        assert_equal URI.parse('https://www.example.com/'), @sitemap.urls.first[:loc]
       end
 
       def test_parse_sitemap_2nd_loc
-        assert_equal 'https://www.example.com/url01', @sitemap.urls[1][:loc]
+        assert_equal URI.parse('https://www.example.com/url01'), @sitemap.urls[1][:loc]
       end
 
       def test_parse_sitemap_3rd_loc
-        assert_equal 'https://www.example.com/directory/url02', @sitemap.urls[2][:loc]
+        assert_equal URI.parse('https://www.example.com/directory/url02'), @sitemap.urls[2][:loc]
       end
     end
 
