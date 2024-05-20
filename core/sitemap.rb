@@ -37,6 +37,8 @@ class Sitemap
 
         url[child_node.name.to_sym] = if child_node.name == 'lastmod'
                                         Time.parse(child_node.text)
+                                      elsif child_node.name == 'loc'
+                                        URI.parse(child_node.text)
                                       else
                                         child_node.text
                                       end
