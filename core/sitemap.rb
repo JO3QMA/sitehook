@@ -7,51 +7,48 @@ require 'time'
 
 # Sitemap Class
 class Sitemap
-  attr_reader :response
+  attr_reader :urls, :response
 
-  def initialize(uri)
-    @uri = URI.parse(uri)
-    @response = discriminant(@uri)
-    @namespace = {
-      "ns": 'http://www.sitemaps.org/schemas/sitemap/0.9'
-    }
-    @body = Nokogiri::XML(@response.body)
-  end
-
-  def discriminant(uri)
-    if uri.scheme == 'https'
-      fetch(uri)
-    elsif uri.scheme.nil?
-      load(uri)
+  def initialize(source)
+    if source =~ URI::DEFAULT_PARSER.make_regexp
+      @source_type = :urls
+      fetch_sitemap_from_url(source)
     else
-      Exception.new('想定外')
+      @source_type = :file
+      fetch_sitemap_from_file(source)
     end
+    parse_sitemap
   end
 
-  def fetch(url)
-    https = Net::HTTP.new(url.host, url.port)
-    https.use_ssl = true
-    https.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    https.start do
-      https.get(url.path)
+  def fetch_sitemap_from_url(url)
+    uri = URI.parse(url)
+    request = Net::HTTP.new(uri.host, uri.port)
+    if uri.scheme == 'https'
+      request.use_ssl = true
+      request.verify_mode = OpenSSL::SSL::VERIFY_PEER
     end
+    @response = request.start do
+      request.get(uri.path)
+    end
+    @sitemap_xml = @response.body
   end
 
-  def urls
-    @body.xpath('//ns:url', @namespace).map do |node|
+  def fetch_sitemap_from_file(path)
+    @sitemap_xml = File.read(path)
+  end
+
+  def parse_sitemap
+    doc = Nokogiri::XML(@sitemap_xml)
+    namespace = { "ns": 'http://www.sitemaps.org/schemas/sitemap/0.9' }
+    @urls = doc.xpath('//ns:url', namespace).map do |node|
       url = {}
       node.children.each do |child_node|
-        next if child_node.node_type == 3 # タグ間の空白文字以外の文字
-        next if child_node.node_type == 8 # コメント
-        next if child_node.node_type == 14 # タグ間の空白文字
-
-        url[child_node.name.to_sym] = if child_node.name == 'lastmod'
-                                        Time.parse(child_node.text)
-                                      elsif child_node.name == 'loc'
-                                        URI.parse(child_node.text)
-                                      else
-                                        child_node.text
-                                      end
+        case child_node.name
+        when 'loc'
+          url[child_node.name.intern] = URI.parse(child_node.text)
+        when 'lastmod'
+          url[child_node.name.intern] = Time.parse(child_node.text)
+        end
       end
       url
     end
