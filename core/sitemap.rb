@@ -11,14 +11,14 @@ class Sitemap
 
   def initialize(source)
     if source =~ URI::DEFAULT_PARSER.make_regexp
-      @source_type = :urls
       fetch_sitemap_from_url(source)
     else
-      @source_type = :file
       fetch_sitemap_from_file(source)
     end
     parse_sitemap
   end
+
+  private
 
   def fetch_sitemap_from_url(url)
     uri = URI.parse(url)
