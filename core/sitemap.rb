@@ -45,9 +45,9 @@ class Sitemap
       node.children.each do |child_node|
         case child_node.name
         when 'loc'
-          url[child_node.name.intern] = URI.parse(child_node.text)
+          url[:loc] = URI.parse(child_node.text)
         when 'lastmod'
-          url[child_node.name.intern] = Time.parse(child_node.text)
+          url[:lastmod] = Time.parse(child_node.text)
         end
       end
       url
