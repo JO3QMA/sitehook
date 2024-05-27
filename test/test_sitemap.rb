@@ -94,7 +94,6 @@ class SitemapTest < Minitest::Test
     end
 
     describe 'Parse sitemap.xml' do
-
       describe 'sitemap urls size test' do
         def test_parse_sitemap_urls_size
           assert_equal 5, @sitemap.urls.size
