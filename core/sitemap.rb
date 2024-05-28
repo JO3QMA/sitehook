@@ -4,37 +4,53 @@ require 'net/https'
 require 'uri'
 require 'nokogiri'
 require 'time'
+require 'logger'
 
 # Sitemap Class
 class Sitemap
   attr_reader :urls, :response
 
   def initialize(source)
+    @logger = Logger.new($stdout)
     if source =~ URI::DEFAULT_PARSER.make_regexp
       fetch_sitemap_from_url(source)
     else
       fetch_sitemap_from_file(source)
     end
     parse_sitemap
+  rescue StandardError => e
+    handle_error('Error initializing Sitemap', e)
   end
 
   private
 
-  def fetch_sitemap_from_url(url)
+  def fetch_sitemap_from_url(url, limit: 10)
+    raise ArgumentError, 'HTTP redirect too deep' if limit.zero?
+
     uri = URI.parse(url)
     request = Net::HTTP.new(uri.host, uri.port)
     if uri.scheme == 'https'
       request.use_ssl = true
       request.verify_mode = OpenSSL::SSL::VERIFY_PEER
     end
-    @response = request.start do
-      request.get(uri.path)
+    @response = request.start { request.get(uri.path) }
+
+    case @response
+    when Net::HTTPSuccess
+      @sitemap_xml = @response.body
+    when Net::HTTPRedirection
+      fetch_sitemap_from_url(@response['location'], limit: limit - 1)
+    else
+      raise "Failed to fetch sitemap: #{@response.code} #{@response.message}"
     end
-    @sitemap_xml = @response.body
+  rescue StandardError => e
+    handle_error('Error fetching sitemap from URL', e)
   end
 
   def fetch_sitemap_from_file(path)
     @sitemap_xml = File.read(path)
+  rescue StandardError => e
+    handle_error('Error reading sitemap file', e)
   end
 
   def parse_sitemap
@@ -52,5 +68,13 @@ class Sitemap
       end
       url
     end
+  rescue StandardError => e
+    handle_error('Error parsing sitemap', e)
+  end
+
+  def handle_error(message, exception)
+    @logger.error("#{message}: #{exception.message}")
+    @logger.debug(exception.backtrace.join("\n"))
+    @urls = []
   end
 end
