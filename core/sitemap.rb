@@ -28,12 +28,9 @@ class Sitemap
     raise ArgumentError, 'HTTP redirect too deep' if limit.zero?
 
     uri = URI.parse(url)
-    request = Net::HTTP.new(uri.host, uri.port)
-    if uri.scheme == 'https'
-      request.use_ssl = true
-      request.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', verify_mode: OpenSSL::SSL::VERIFY_PEER) do |http|
+      @response = http.get(uri.path)
     end
-    @response = request.start { request.get(uri.path) }
 
     case @response
     when Net::HTTPSuccess
