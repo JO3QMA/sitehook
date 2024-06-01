@@ -22,6 +22,15 @@ class Sitemap
     handle_error('Error initializing Sitemap', e)
   end
 
+  def save(path)
+    raise 'No sitemap data to save' unless @sitemap_xml
+
+    File.write(path, @sitemap_xml)
+    @logger.info("Sitemap saved to #{path}")
+  rescue StandardError => e
+    handle_error('Error saving sitemap to file', e)
+  end
+
   private
 
   def fetch_sitemap_from_url(url, limit: 10)
